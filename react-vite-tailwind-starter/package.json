@@ -2,7 +2,7 @@
   "name": "react-vite-tailwind-starter",
   "version": "1.0.0",
   "description": "A CLI tool to create a React project with Vite and Tailwind CSS setup",
-  "main": "createApp.js",
+  "main": "scripts/initProject.js",
   "bin": {
     "start-new-react-app": "./scripts/initProject.js"
   },
@@ -11,5 +11,8 @@
   },
   "keywords": [],
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "inquirer": "^8.2.0"
+  }
 }
