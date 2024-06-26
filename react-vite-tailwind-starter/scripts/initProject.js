@@ -4,18 +4,34 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-function createReactViteTailwindApp(projectName) {
+function createReactViteTailwindApp(projectName, projectDir) {
   if (!projectName) {
-    console.log("Please specify a project name.");
-    process.exit(1);
+    projectName = path.basename(process.cwd());
   }
 
-  console.log(`Creating a new React project with Vite: ${projectName}`);
-  execSync(`npm create vite@latest ${projectName} -- --template react`, {
-    stdio: "inherit",
-  });
+  if (!projectDir) {
+    projectDir = process.cwd();
+  }
 
-  process.chdir(projectName);
+  const finalPath =
+    projectDir === process.cwd()
+      ? projectDir
+      : path.join(projectDir, projectName);
+
+  console.log(
+    `Creating a new React project with Vite: ${projectName} in ${finalPath}`
+  );
+  execSync(
+    `npm create vite@latest ${
+      projectDir === process.cwd() ? "." : projectName
+    } -- --template react`,
+    {
+      stdio: "inherit",
+      cwd: projectDir,
+    }
+  );
+
+  process.chdir(finalPath);
   console.log("Installing Tailwind CSS...");
   execSync("npm install -D tailwindcss postcss autoprefixer", {
     stdio: "inherit",
@@ -78,5 +94,29 @@ export default App;
   console.log(`Setup complete. Project ${projectName} created successfully!`);
 }
 
-const projectName = process.argv[2];
-createReactViteTailwindApp(projectName);
+(async () => {
+  const inquirer = await import("inquirer");
+  const currentDirName = path.basename(process.cwd());
+
+  const answers = await inquirer.default.prompt([
+    {
+      type: "input",
+      name: "projectName",
+      message:
+        "Enter your project name (leave blank to use current directory):",
+      default: "",
+    },
+    {
+      type: "input",
+      name: "projectDir",
+      message:
+        "Enter the directory to create the project in (leave blank to use current directory):",
+      default: "",
+    },
+  ]);
+
+  const projectName = answers.projectName || currentDirName;
+  const projectDir = answers.projectDir || process.cwd();
+
+  createReactViteTailwindApp(projectName, projectDir);
+})();
