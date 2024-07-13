@@ -116,42 +116,7 @@ export default App;
         stdio: "inherit",
       }
     );
-
-    const eslintConfigPath = path.join(process.cwd(), ".eslintrc.json");
-    const eslintConfigContent = {
-      extends: [
-        "eslint:recommended",
-        "plugin:react/recommended",
-        "plugin:react/jsx-runtime",
-        "plugin:react-hooks/recommended",
-        "plugin:jsx-a11y/recommended",
-      ],
-      plugins: ["react-refresh", "jsx-a11y", "react-hooks"],
-      rules: {
-        "prettier/prettier": ["error", { endOfLine: "auto" }],
-        "no-unused-vars": "warn",
-        "no-console": "off",
-        "func-names": "off",
-        "no-process-exit": "off",
-        "object-shorthand": "off",
-        "class-methods-use-this": "off",
-        "react/jsx-no-target-blank": "off",
-        "react-refresh/only-export-components": [
-          "warn",
-          { allowConstantExport: true },
-        ],
-        "react-hooks/rules-of-hooks": "error",
-        "react-hooks/exhaustive-deps": "warn",
-      },
-      parserOptions: { ecmaVersion: "latest", sourceType: "module" },
-      settings: { react: { version: "18.2" } },
-    };
-
-    fs.writeFileSync(
-      eslintConfigPath,
-      JSON.stringify(eslintConfigContent, null, 2),
-      "utf8"
-    );
+    addESLintConfig(finalPath);
   }
 
   if (answers.setupPrettier) {
@@ -162,34 +127,30 @@ export default App;
         stdio: "inherit",
       }
     );
-
-    const prettierConfigPath = path.join(process.cwd(), ".prettierrc.json");
-    const prettierConfigContent = {
-      tabWidth: 2,
-      singleQuote: true,
-      useTabs: false,
-      printWidth: 80,
-      semi: false,
-      plugins: [
-        "prettier-plugin-tailwindcss",
-        "@trivago/prettier-plugin-sort-imports",
-      ],
-      tailwindConfig: "./tailwind.config.js",
-      endOfLine: "auto",
-      trailingComma: "none",
-      importOrder: ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
-      importOrderSeparation: true,
-      importOrderSortSpecifiers: true,
-    };
-
-    fs.writeFileSync(
-      prettierConfigPath,
-      JSON.stringify(prettierConfigContent, null, 2),
-      "utf8"
-    );
+    addPrettierConfig(finalPath);
   }
 
   console.log(`Setup complete. Project ${projectName} created successfully!`);
+}
+function addPrettierConfig(projectPath) {
+  const prettierConfigTemplate = path.join(
+    __dirname,
+    "templates",
+    ".prettierrc.json"
+  );
+  const prettierConfigDest = path.join(projectPath, ".prettierrc.json");
+  fs.copyFileSync(prettierConfigTemplate, prettierConfigDest);
+  console.log("Added Prettier configuration");
+}
+function addESLintConfig(projectPath) {
+  const eslintConfigTemplate = path.join(
+    __dirname,
+    "templates",
+    ".eslintrc.json"
+  );
+  const eslintConfigDest = path.join(projectPath, ".eslintrc.json");
+  fs.copyFileSync(eslintConfigTemplate, eslintConfigDest);
+  console.log("Added ESLint configuration");
 }
 
 (async () => {
