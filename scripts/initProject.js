@@ -102,13 +102,6 @@ export default App;
     },
     {
       type: "confirm",
-      name: "setupAirbnbConfig",
-      message: "Do you want to use the Airbnb ESLint config?",
-      default: true,
-      when: (answers) => answers.setupESLint,
-    },
-    {
-      type: "confirm",
       name: "setupPrettier",
       message: "Do you want to set up Prettier?",
       default: true,
@@ -118,7 +111,7 @@ export default App;
   if (answers.setupESLint) {
     console.log("Installing ESLint...");
     execSync(
-      "npm install -D eslint eslint-config-airbnb eslint-plugin-react eslint-plugin-jsx-a11y",
+      "npm install -D eslint eslint-plugin-react eslint-plugin-jsx-a11y",
       {
         stdio: "inherit",
       }
@@ -127,7 +120,6 @@ export default App;
     const eslintConfigPath = path.join(process.cwd(), ".eslintrc.json");
     const eslintConfigContent = {
       extends: [
-        "airbnb",
         "eslint:recommended",
         "plugin:react/recommended",
         "plugin:react/jsx-runtime",
@@ -163,10 +155,13 @@ export default App;
   }
 
   if (answers.setupPrettier) {
-    console.log("Installing Prettier...");
-    execSync("npm install -D prettier prettier-plugin-tailwindcss", {
-      stdio: "inherit",
-    });
+    console.log("Installing Prettier and related plugins...");
+    execSync(
+      "npm install -D prettier prettier-plugin-tailwindcss @trivago/prettier-plugin-sort-imports",
+      {
+        stdio: "inherit",
+      }
+    );
 
     const prettierConfigPath = path.join(process.cwd(), ".prettierrc.json");
     const prettierConfigContent = {
@@ -175,10 +170,16 @@ export default App;
       useTabs: false,
       printWidth: 80,
       semi: false,
-      plugins: ["prettier-plugin-tailwindcss"],
+      plugins: [
+        "prettier-plugin-tailwindcss",
+        "@trivago/prettier-plugin-sort-imports",
+      ],
       tailwindConfig: "./tailwind.config.js",
       endOfLine: "auto",
       trailingComma: "none",
+      importOrder: ["^@core/(.*)$", "^@server/(.*)$", "^@ui/(.*)$", "^[./]"],
+      importOrderSeparation: true,
+      importOrderSortSpecifiers: true,
     };
 
     fs.writeFileSync(
