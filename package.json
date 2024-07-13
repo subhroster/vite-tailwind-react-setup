@@ -1,5 +1,5 @@
 {
-  "name": "vite-tailwind-react-setup",
+  "name": "@subhroster/vite-tailwind-react-setup",
   "version": "1.0.3",
   "description": "A CLI tool to create a React project with Vite and Tailwind CSS setup",
   "main": "scripts/initProject.js",
@@ -26,5 +26,8 @@
   "license": "ISC",
   "dependencies": {
     "inquirer": "^8.2.0"
+  },
+  "publishConfig": {
+    "registry": "https://npm.pkg.github.com"
   }
 }

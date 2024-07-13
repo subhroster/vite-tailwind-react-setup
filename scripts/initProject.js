@@ -4,7 +4,7 @@ const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
 
-function createReactViteTailwindApp(projectName, projectDir) {
+async function createReactViteTailwindApp(projectName, projectDir) {
   if (!projectName) {
     projectName = path.basename(process.cwd());
   }
@@ -91,14 +91,111 @@ export default App;
   `;
   fs.writeFileSync(appPath, appContent, "utf8");
 
+  // Install ESLint if requested
+  const inquirer = await require("inquirer");
+  const answers = await inquirer.prompt([
+    {
+      type: "confirm",
+      name: "setupESLint",
+      message: "Do you want to set up ESLint?",
+      default: true,
+    },
+    {
+      type: "confirm",
+      name: "setupAirbnbConfig",
+      message: "Do you want to use the Airbnb ESLint config?",
+      default: true,
+      when: (answers) => answers.setupESLint,
+    },
+    {
+      type: "confirm",
+      name: "setupPrettier",
+      message: "Do you want to set up Prettier?",
+      default: true,
+    },
+  ]);
+
+  if (answers.setupESLint) {
+    console.log("Installing ESLint...");
+    execSync(
+      "npm install -D eslint eslint-config-airbnb eslint-plugin-react eslint-plugin-jsx-a11y",
+      {
+        stdio: "inherit",
+      }
+    );
+
+    const eslintConfigPath = path.join(process.cwd(), ".eslintrc.json");
+    const eslintConfigContent = {
+      extends: [
+        "airbnb",
+        "eslint:recommended",
+        "plugin:react/recommended",
+        "plugin:react/jsx-runtime",
+        "plugin:react-hooks/recommended",
+        "plugin:jsx-a11y/recommended",
+      ],
+      plugins: ["react-refresh", "jsx-a11y", "react-hooks"],
+      rules: {
+        "prettier/prettier": ["error", { endOfLine: "auto" }],
+        "no-unused-vars": "warn",
+        "no-console": "off",
+        "func-names": "off",
+        "no-process-exit": "off",
+        "object-shorthand": "off",
+        "class-methods-use-this": "off",
+        "react/jsx-no-target-blank": "off",
+        "react-refresh/only-export-components": [
+          "warn",
+          { allowConstantExport: true },
+        ],
+        "react-hooks/rules-of-hooks": "error",
+        "react-hooks/exhaustive-deps": "warn",
+      },
+      parserOptions: { ecmaVersion: "latest", sourceType: "module" },
+      settings: { react: { version: "18.2" } },
+    };
+
+    fs.writeFileSync(
+      eslintConfigPath,
+      JSON.stringify(eslintConfigContent, null, 2),
+      "utf8"
+    );
+  }
+
+  if (answers.setupPrettier) {
+    console.log("Installing Prettier...");
+    execSync("npm install -D prettier prettier-plugin-tailwindcss", {
+      stdio: "inherit",
+    });
+
+    const prettierConfigPath = path.join(process.cwd(), ".prettierrc.json");
+    const prettierConfigContent = {
+      tabWidth: 2,
+      singleQuote: true,
+      useTabs: false,
+      printWidth: 80,
+      semi: false,
+      plugins: ["prettier-plugin-tailwindcss"],
+      tailwindConfig: "./tailwind.config.js",
+      endOfLine: "auto",
+      trailingComma: "none",
+    };
+
+    fs.writeFileSync(
+      prettierConfigPath,
+      JSON.stringify(prettierConfigContent, null, 2),
+      "utf8"
+    );
+  }
+
   console.log(`Setup complete. Project ${projectName} created successfully!`);
 }
 
 (async () => {
-  const inquirer = await import("inquirer");
+  const inquirer = await require("inquirer");
   const currentDirName = path.basename(process.cwd());
 
-  const answers = await inquirer.default.prompt([
+  const answers = await inquirer.prompt([
     {
       type: "input",
       name: "projectName",
@@ -118,5 +215,5 @@ export default App;
   const projectName = answers.projectName || currentDirName;
   const projectDir = answers.projectDir || process.cwd();
 
-  createReactViteTailwindApp(projectName, projectDir);
+  await createReactViteTailwindApp(projectName, projectDir);
 })();
