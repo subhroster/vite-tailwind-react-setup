@@ -3,6 +3,14 @@
 const { execSync } = require("child_process");
 const fs = require("fs");
 const path = require("path");
+function safeUnlink(filePath) {
+  if (fs.existsSync(filePath)) {
+    fs.unlinkSync(filePath);
+    console.log(`Deleted: ${filePath}`);
+  } else {
+    console.log(`File not found, skipping delete: ${filePath}`);
+  }
+}
 
 async function createReactViteTailwindApp(projectName, projectDir) {
   if (!projectName) {
@@ -55,16 +63,16 @@ module.exports = {
   `;
   fs.writeFileSync(tailwindConfigPath, tailwindConfig, "utf8");
 
-  const postcssConfigPath = path.join(process.cwd(), "postcss.config.cjs");
-  const postcssConfig = `
-module.exports = {
-  plugins: {
-    tailwindcss: {},
-    autoprefixer: {},
-  },
-}
-  `;
-  fs.writeFileSync(postcssConfigPath, postcssConfig, "utf8");
+  //   const postcssConfigPath = path.join(process.cwd(), "postcss.config.cjs");
+  //   const postcssConfig = `
+  // module.exports = {
+  //   plugins: {
+  //     tailwindcss: {},
+  //     autoprefixer: {},
+  //   },
+  // }
+  //   `;
+  //   fs.writeFileSync(postcssConfigPath, postcssConfig, "utf8");
 
   const cssPath = path.join(process.cwd(), "src", "index.css");
   const cssContent = `
@@ -90,7 +98,9 @@ function App() {
 export default App;
   `;
   fs.writeFileSync(appPath, appContent, "utf8");
-
+  // Safely remove SVG files
+  safeUnlink(path.join(process.cwd(), "public", "vite.svg"));
+  safeUnlink(path.join(process.cwd(), "src", "assets", "react.svg"));
   // Install ESLint if requested
   const inquirer = await require("inquirer");
   const answers = await inquirer.prompt([
@@ -105,6 +115,12 @@ export default App;
       name: "setupPrettier",
       message: "Do you want to set up Prettier?",
       default: true,
+    },
+    {
+      type: "confirm",
+      name: "setupAirbnbESLint",
+      message: "Do you want to set up Airbnb ESLint style?",
+      default: false,
     },
   ]);
 
@@ -122,12 +138,36 @@ export default App;
   if (answers.setupPrettier) {
     console.log("Installing Prettier and related plugins...");
     execSync(
-      "npm install -D prettier prettier-plugin-tailwindcss @trivago/prettier-plugin-sort-imports",
+      "npm install -D prettier prettier-plugin-tailwindcss @trivago/prettier-plugin-sort-imports eslint-config-prettier --save-exact prettier eslint-plugin-prettier",
       {
         stdio: "inherit",
       }
     );
     addPrettierConfig(finalPath);
+  }
+  if (answers.setupESLint) {
+    console.log("Installing ESLint...");
+    if (answers.setupAirbnbESLint) {
+      console.log("Setting up Airbnb ESLint style...");
+      execSync(
+        "npm uninstall eslint-plugin-react eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react-hooks",
+        { stdio: "inherit" }
+      );
+      execSync(
+        "npm install eslint@^8.2.0 eslint-plugin-react@^7.28.0 eslint-plugin-import@^2.25.3 eslint-plugin-jsx-a11y@^6.5.1 eslint-plugin-react-hooks@^4.3.0 --save-dev",
+        { stdio: "inherit" }
+      );
+      execSync("npm install eslint-config-airbnb --save-dev", {
+        stdio: "inherit",
+      });
+      addAirbnbESLintConfig(finalPath);
+    } else {
+      execSync(
+        "npm install -D eslint eslint-plugin-react eslint-plugin-jsx-a11y",
+        { stdio: "inherit" }
+      );
+      addESLintConfig(finalPath);
+    }
   }
 
   console.log(`Setup complete. Project ${projectName} created successfully!`);
@@ -146,11 +186,21 @@ function addESLintConfig(projectPath) {
   const eslintConfigTemplate = path.join(
     __dirname,
     "templates",
-    ".eslintrc.json"
+    ".eslintrc.cjs"
   );
-  const eslintConfigDest = path.join(projectPath, ".eslintrc.json");
+  const eslintConfigDest = path.join(projectPath, ".eslintrc.cjs");
   fs.copyFileSync(eslintConfigTemplate, eslintConfigDest);
   console.log("Added ESLint configuration");
+}
+function addAirbnbESLintConfig(projectPath) {
+  const eslintConfigTemplate = path.join(
+    __dirname,
+    "templates",
+    ".eslintrcairbnb.cjs"
+  );
+  const eslintConfigDest = path.join(projectPath, ".eslintrc.cjs");
+  fs.copyFileSync(eslintConfigTemplate, eslintConfigDest);
+  console.log("Added Airbnb ESLint configuration");
 }
 
 (async () => {
