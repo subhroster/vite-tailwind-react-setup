@@ -1,6 +1,6 @@
 {
   "name": "@subhroster/vite-tailwind-react-setup",
-  "version": "1.0.4",
+  "version": "2.0.0",
   "description": "A CLI tool to create a React project with Vite and Tailwind CSS setup",
   "main": "scripts/initProject.js",
   "bin": {
