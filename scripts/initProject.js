@@ -45,7 +45,7 @@ async function createReactViteTailwindApp(projectName, projectDir) {
     stdio: "inherit",
   });
   execSync("npx tailwindcss init -p", { stdio: "inherit" });
-
+  createFolderStructure(finalPath);
   console.log("Configuring Tailwind CSS...");
   const tailwindConfigPath = path.join(process.cwd(), "tailwind.config.js");
   const tailwindConfig = `
@@ -201,6 +201,14 @@ function addAirbnbESLintConfig(projectPath) {
   const eslintConfigDest = path.join(projectPath, ".eslintrc.cjs");
   fs.copyFileSync(eslintConfigTemplate, eslintConfigDest);
   console.log("Added Airbnb ESLint configuration");
+}
+function createFolderStructure(projectPath) {
+  const folders = ["components", "pages", "utils", "hooks"];
+  folders.forEach((folder) => {
+    const folderPath = path.join(projectPath, "src", folder);
+    fs.mkdirSync(folderPath, { recursive: true });
+    console.log(`Created ${folder} folder`);
+  });
 }
 
 (async () => {
