@@ -72,7 +72,6 @@ export default {
   `;
   fs.writeFileSync(tailwindConfigPath, tailwindConfig, "utf8");
 
-<<<<<<< HEAD
   // Safely remove postcss.config.cjs and create postcss.config.json
   safeUnlink(path.join(process.cwd(), "postcss.config.cjs"));
   const postcssConfigPath = path.join(process.cwd(), "postcss.config.json");
@@ -87,18 +86,6 @@ export default {
     JSON.stringify(postcssConfig, null, 2),
     "utf8"
   );
-=======
-  //   const postcssConfigPath = path.join(process.cwd(), "postcss.config.cjs");
-  //   const postcssConfig = `
-  // module.exports = {
-  //   plugins: {
-  //     tailwindcss: {},
-  //     autoprefixer: {},
-  //   },
-  // }
-  //   `;
-  //   fs.writeFileSync(postcssConfigPath, postcssConfig, "utf8");
->>>>>>> airbnb-fix
 
   const cssPath = path.join(process.cwd(), "src", "index.css");
   const cssContent = `
@@ -124,7 +111,6 @@ function App() {
 export default App;
   `;
   fs.writeFileSync(appPath, appContent, "utf8");
-<<<<<<< HEAD
 
   // Clear App.css
   fs.writeFileSync(path.join(process.cwd(), "src", "App.css"), "", "utf8");
@@ -133,11 +119,6 @@ export default App;
   safeUnlink(path.join(process.cwd(), "public", "vite.svg"));
   safeUnlink(path.join(process.cwd(), "src", "assets", "react.svg"));
 
-=======
-  // Safely remove SVG files
-  safeUnlink(path.join(process.cwd(), "public", "vite.svg"));
-  safeUnlink(path.join(process.cwd(), "src", "assets", "react.svg"));
->>>>>>> airbnb-fix
   // Install ESLint if requested
   const inquirer = await import("inquirer");
   const answers = await inquirer.default.prompt([
@@ -169,7 +150,6 @@ export default App;
         stdio: "inherit",
       }
     );
-<<<<<<< HEAD
 
     // Safely remove .eslintrc.cjs if it exists
     safeUnlink(path.join(process.cwd(), ".eslintrc.cjs"));
@@ -209,9 +189,6 @@ export default App;
       JSON.stringify(eslintConfigContent, null, 2),
       "utf8"
     );
-=======
-    addESLintConfig(finalPath);
->>>>>>> airbnb-fix
   }
 
   if (answers.setupPrettier) {
@@ -222,7 +199,6 @@ export default App;
         stdio: "inherit",
       }
     );
-<<<<<<< HEAD
 
     const prettierConfigPath = path.join(process.cwd(), ".prettierrc.json");
     const prettierConfigContent = {
@@ -251,33 +227,6 @@ export default App;
       JSON.stringify(prettierConfigContent, null, 2),
       "utf8"
     );
-=======
-    addPrettierConfig(finalPath);
-  }
-  if (answers.setupESLint) {
-    console.log("Installing ESLint...");
-    if (answers.setupAirbnbESLint) {
-      console.log("Setting up Airbnb ESLint style...");
-      execSync(
-        "npm uninstall eslint-plugin-react eslint-plugin-import eslint-plugin-jsx-a11y eslint-plugin-react-hooks",
-        { stdio: "inherit" }
-      );
-      execSync(
-        "npm install eslint@^8.2.0 eslint-plugin-react@^7.28.0 eslint-plugin-import@^2.25.3 eslint-plugin-jsx-a11y@^6.5.1 eslint-plugin-react-hooks@^4.3.0 --save-dev",
-        { stdio: "inherit" }
-      );
-      execSync("npm install eslint-config-airbnb --save-dev", {
-        stdio: "inherit",
-      });
-      addAirbnbESLintConfig(finalPath);
-    } else {
-      execSync(
-        "npm install -D eslint eslint-plugin-react eslint-plugin-jsx-a11y",
-        { stdio: "inherit" }
-      );
-      addESLintConfig(finalPath);
-    }
->>>>>>> airbnb-fix
   }
 
   console.log(`Setup complete. Project ${projectName} created successfully!`);
